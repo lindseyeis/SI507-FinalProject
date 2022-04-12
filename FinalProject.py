@@ -14,7 +14,27 @@ wiki_html_cache = {} # {'http://survivor.wikia.com/Evie': 'BEAUTIFUL SOUP STUFF'
 
 all_contestants_soup = BeautifulSoup(contestant_url.content, 'html.parser')
 alliance_soup = BeautifulSoup(alliance_url.content, 'html.parser')
-contestants = all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True)
+
+contestants = []
+contestants.extend(all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True))
+
+pagination_buttons = all_contestants_soup.find("div", {"class": "category-page__pagination"})
+next_button = pagination_buttons.find("a", {"class": "category-page__pagination-next wds-button wds-is-secondary"})
+
+# While there's still a next button, we need to go to the next page and get all the contestants from that page
+while next_button is not None:
+    # First, get the link to the next page
+    next_button_link = next_button['href']
+    # Go to the next page url
+    contestant_page_url = requests.get(next_button_link)
+    # Convert the next page to soup
+    all_contestants_soup = BeautifulSoup(contestant_page_url.content, 'html.parser')
+    # For each contestant on that page, add those contestants to the contestant list
+    contestants.extend(all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True))
+    # See if there's another next button, and if so, keep going
+    pagination_buttons = all_contestants_soup.find("div", {"class": "category-page__pagination"})
+    next_button = pagination_buttons.find("a", {"class": "category-page__pagination-next wds-button wds-is-secondary"})
+
 alliances = alliance_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True)
 
 # This function returns the beautiful soup for a contestant or alliance
