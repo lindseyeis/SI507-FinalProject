@@ -2,14 +2,20 @@ import requests
 from bs4 import BeautifulSoup
 
 BASE_URL = 'https://survivor.fandom.com'
+CONTESTANT_URL = '/wiki/Category:Survivor_(U.S.)_Contestants'
+ALLIANCE_URL = '/wiki/Category:Alliances'
 
-url = requests.get(BASE_URL + '/wiki/Category:Survivor_(U.S.)_Contestants')
-contestant_graph = {} # {'Evie': {'Seasons': ['Survivor 41', 'Survivor 75'], 'Alliances': ['Yase', 'Cool Allaince', ...], 'Bio': 'I am Evie', ... }
+contestant_url = requests.get(BASE_URL + CONTESTANT_URL)
+alliance_url = requests.get(BASE_URL + ALLIANCE_URL)
+
+contestant_and_alliance_graph = {} # {'Evie': {'Seasons': ['Survivor 41', 'Survivor 75'], 'Alliances': ['Yase', 'Cool Allaince', ...], 'Bio': 'I am Evie', ... }
 contestant_to_url = {} # {'Evie': 'http://survivor.wikia.com/Evie' } We have this so the dropdown knows what url to go to
 wiki_html_cache = {} # {'http://survivor.wikia.com/Evie': 'BEAUTIFUL SOUP STUFF'}
 
-soup = BeautifulSoup(url.content, 'html.parser')
-contestants = soup.find_all("a", {"class": "category-page__member-link"}, recursive=True)
+all_contestants_soup = BeautifulSoup(contestant_url.content, 'html.parser')
+alliance_soup = BeautifulSoup(alliance_url.content, 'html.parser')
+contestants = all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True)
+alliances = alliance_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True)
 
 # This function returns the beautiful soup for a contestant or alliance
 def get_wiki_page(contestant_or_alliance_url):
@@ -66,24 +72,55 @@ def scrape_contestant_wiki_page(wiki_page_contents):
     # 'Seasons': {'Survivor 41': 14/16, 'Survivor 75': 2/20, ...}
     return {'Name': contestant_name, 'Alliances': alliance_list, 'Seasons': all_seasons_and_places}
 
+def scrape_alliance_wiki_page(wiki_page_contents):
+    title = wiki_page_contents.find("h2", {"data-source": "name"}, recursive=True)
+    if title is not None:
+        alliance_name = title.text
+    else:
+        return None
+
+    members = wiki_page_contents.find_all("div", {"class": "floatnone"})
+    member_names = []
+    if members is not None:
+        for member in members:
+            member_name_html = member.find("a", recursive=True)
+            if member_name_html is not None:
+                member_names.append(member_name_html["title"])
+
+    return {'Alliance Name': alliance_name, 'Members': member_names}
+
 # contestant_info will be like {"Evie": "Survivor 41", "Yase Alliance",...}
-def load_information_to_graph(contestant_info):
+def load_contestant_information_to_graph(contestant_info):
     # Check if contestant is already in the graph
     # If contestant not in graph, add to graph
     if contestant_info is not None:
         contestant_name = contestant_info['Name']
-        if contestant_name not in contestant_graph:
+        if contestant_name not in contestant_and_alliance_graph:
             # contestant_graph is expecting to be in the format {'Evie': {'Alliances': ['Yase'], 'Seasons': ['Survivor 41'],...}
-            contestant_graph[contestant_name] = {'Alliances': contestant_info['Alliances'], 'Seasons': contestant_info['Seasons']}
+            contestant_and_alliance_graph[contestant_name] = {'Alliances': contestant_info['Alliances'], 'Seasons': contestant_info['Seasons']}
+
+def load_alliance_information_to_graph(alliance_info):
+    if alliance_info is not None:
+        alliance_name = alliance_info['Alliance Name']
+        if alliance_name not in contestant_and_alliance_graph:
+            # contestant_graph is expecting to be in the format {'Aitu Four': ['Yul', 'Becky', ...]}
+            contestant_and_alliance_graph[alliance_name] = alliance_info['Members']
 
 for contestant_html in contestants:
     href = contestant_html['href']
     link = BASE_URL + href
     contestant_or_alliance_soup = get_wiki_page(link)
     graph_entry = scrape_contestant_wiki_page(contestant_or_alliance_soup)
-    load_information_to_graph(graph_entry)
+    load_contestant_information_to_graph(graph_entry)
+
+for alliance_html in alliances:
+    href = alliance_html['href']
+    link = BASE_URL + href
+    contestant_or_alliance_soup = get_wiki_page(link)
+    graph_entry = scrape_alliance_wiki_page(contestant_or_alliance_soup)
+    load_alliance_information_to_graph(graph_entry)
 
 # aaron_meredith_info = get_wiki_page('https://survivor.fandom.com/wiki/Aaron_Meredith')
 # aaron_meredith_graph_entry = scrape_contestant_wiki_page(aaron_meredith_info)
 # load_information_to_graph(aaron_meredith_graph_entry)
-print(contestant_graph)
+print(contestant_and_alliance_graph)
