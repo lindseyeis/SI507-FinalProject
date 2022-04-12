@@ -24,6 +24,13 @@ def get_wiki_page(contestant_or_alliance_url):
 # Contestant table: contestant name, alliance name, individual ranking
 # Alliance table: alliance name, alliance members
 
+# First, look up the contestant Evie in the contestants table
+# Now, we have Evie's alliance name, Yase
+# We look up Yase in the alliance page
+# This gives us all of the other members of that alliance
+# Now, we look up all the other members in the contestant table (Xander, Genie, etc.)
+# We get their information and use all of this to decide whether it was a winning alliance
+
 # wiki_page_contents will be the beautiful soup
 def scrape_contestant_wiki_page(wiki_page_contents):
     title = wiki_page_contents.find("h2", {"data-source": "title"}, recursive=True)
@@ -40,8 +47,24 @@ def scrape_contestant_wiki_page(wiki_page_contents):
             for alliance in alliances:
                 alliance_list.append(alliance['href'])
 
+    all_seasons = wiki_page_contents.find("nav", {"data-item-name": "season"}, recursive=True)
+    all_seasons_and_places = {}
+    i = 1
+    for season in all_seasons:
+        if i == 1:
+            season_tag = "place"
+        else:
+            season_tag = "place" + str(i)
+        season_place = wiki_page_contents.find("div", {"data-source": season_tag}, recursive=True)
+        if season is not None and season_place is not None:
+            place = season_place.text
+            split_place = place.split("\n")
+            all_seasons_and_places[season.text] = split_place[2]
+        i += 1
+
     # {'Name': 'Evie', 'Alliances': ['Yase']}
-    return {'Name': contestant_name, 'Alliances': alliance_list}
+    # 'Seasons': {'Survivor 41': 14/16, 'Survivor 75': 2/20, ...}
+    return {'Name': contestant_name, 'Alliances': alliance_list, 'Seasons': all_seasons_and_places}
 
 # contestant_info will be like {"Evie": "Survivor 41", "Yase Alliance",...}
 def load_information_to_graph(contestant_info):
@@ -51,7 +74,7 @@ def load_information_to_graph(contestant_info):
         contestant_name = contestant_info['Name']
         if contestant_name not in contestant_graph:
             # contestant_graph is expecting to be in the format {'Evie': {'Alliances': ['Yase'], 'Seasons': ['Survivor 41'],...}
-            contestant_graph[contestant_name] = {'Alliances': contestant_info['Alliances']}
+            contestant_graph[contestant_name] = {'Alliances': contestant_info['Alliances'], 'Seasons': contestant_info['Seasons']}
 
 for contestant_html in contestants:
     href = contestant_html['href']
