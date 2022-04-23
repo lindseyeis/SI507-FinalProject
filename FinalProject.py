@@ -1,41 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
+import pymongo
+import dns
 
 BASE_URL = 'https://survivor.fandom.com'
 CONTESTANT_URL = '/wiki/Category:Survivor_(U.S.)_Contestants'
 ALLIANCE_URL = '/wiki/Category:Alliances'
 
-contestant_url = requests.get(BASE_URL + CONTESTANT_URL)
-alliance_url = requests.get(BASE_URL + ALLIANCE_URL)
-
 contestant_and_alliance_graph = {} # {'Evie': {'Seasons': ['Survivor 41', 'Survivor 75'], 'Alliances': ['Yase', 'Cool Allaince', ...], 'Bio': 'I am Evie', ... }
 contestant_to_url = {} # {'Evie': 'http://survivor.wikia.com/Evie' } We have this so the dropdown knows what url to go to
 wiki_html_cache = {} # {'http://survivor.wikia.com/Evie': 'BEAUTIFUL SOUP STUFF'}
-
-all_contestants_soup = BeautifulSoup(contestant_url.content, 'html.parser')
-alliance_soup = BeautifulSoup(alliance_url.content, 'html.parser')
-
-contestants = []
-contestants.extend(all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True))
-
-pagination_buttons = all_contestants_soup.find("div", {"class": "category-page__pagination"})
-next_button = pagination_buttons.find("a", {"class": "category-page__pagination-next wds-button wds-is-secondary"})
-
-# While there's still a next button, we need to go to the next page and get all the contestants from that page
-while next_button is not None:
-    # First, get the link to the next page
-    next_button_link = next_button['href']
-    # Go to the next page url
-    contestant_page_url = requests.get(next_button_link)
-    # Convert the next page to soup
-    all_contestants_soup = BeautifulSoup(contestant_page_url.content, 'html.parser')
-    # For each contestant on that page, add those contestants to the contestant list
-    contestants.extend(all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True))
-    # See if there's another next button, and if so, keep going
-    pagination_buttons = all_contestants_soup.find("div", {"class": "category-page__pagination"})
-    next_button = pagination_buttons.find("a", {"class": "category-page__pagination-next wds-button wds-is-secondary"})
-
-alliances = alliance_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True)
 
 # This function returns the beautiful soup for a contestant or alliance
 def get_wiki_page(contestant_or_alliance_url):
@@ -126,21 +100,56 @@ def load_alliance_information_to_graph(alliance_info):
             # contestant_graph is expecting to be in the format {'Aitu Four': ['Yul', 'Becky', ...]}
             contestant_and_alliance_graph[alliance_name] = alliance_info['Members']
 
-for contestant_html in contestants:
-    href = contestant_html['href']
-    link = BASE_URL + href
-    contestant_or_alliance_soup = get_wiki_page(link)
-    graph_entry = scrape_contestant_wiki_page(contestant_or_alliance_soup)
-    load_contestant_information_to_graph(graph_entry)
+def scrape_all_contestant_and_alliance_pages():
+    contestant_url = requests.get(BASE_URL + CONTESTANT_URL)
+    alliance_url = requests.get(BASE_URL + ALLIANCE_URL)
 
-for alliance_html in alliances:
-    href = alliance_html['href']
-    link = BASE_URL + href
-    contestant_or_alliance_soup = get_wiki_page(link)
-    graph_entry = scrape_alliance_wiki_page(contestant_or_alliance_soup)
-    load_alliance_information_to_graph(graph_entry)
+    all_contestants_soup = BeautifulSoup(contestant_url.content, 'html.parser')
+    alliance_soup = BeautifulSoup(alliance_url.content, 'html.parser')
+
+    contestants = []
+    contestants.extend(all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True))
+
+    pagination_buttons = all_contestants_soup.find("div", {"class": "category-page__pagination"})
+    next_button = pagination_buttons.find("a", {"class": "category-page__pagination-next wds-button wds-is-secondary"})
+
+    # While there's still a next button, we need to go to the next page and get all the contestants from that page
+    while next_button is not None:
+        # First, get the link to the next page
+        next_button_link = next_button['href']
+        # Go to the next page url
+        contestant_page_url = requests.get(next_button_link)
+        # Convert the next page to soup
+        all_contestants_soup = BeautifulSoup(contestant_page_url.content, 'html.parser')
+        # For each contestant on that page, add those contestants to the contestant list
+        contestants.extend(all_contestants_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True))
+        # See if there's another next button, and if so, keep going
+        pagination_buttons = all_contestants_soup.find("div", {"class": "category-page__pagination"})
+        next_button = pagination_buttons.find("a", {"class": "category-page__pagination-next wds-button wds-is-secondary"})
+
+    alliances = alliance_soup.find_all("a", {"class": "category-page__member-link"}, recursive=True)
+    for contestant_html in contestants:
+        href = contestant_html['href']
+        link = BASE_URL + href
+        contestant_or_alliance_soup = get_wiki_page(link)
+        graph_entry = scrape_contestant_wiki_page(contestant_or_alliance_soup)
+        load_contestant_information_to_graph(graph_entry)
+    print('Scraping alliances')
+    for alliance_html in alliances:
+        href = alliance_html['href']
+        link = BASE_URL + href
+        contestant_or_alliance_soup = get_wiki_page(link)
+        graph_entry = scrape_alliance_wiki_page(contestant_or_alliance_soup)
+        load_alliance_information_to_graph(graph_entry)
 
 # aaron_meredith_info = get_wiki_page('https://survivor.fandom.com/wiki/Aaron_Meredith')
 # aaron_meredith_graph_entry = scrape_contestant_wiki_page(aaron_meredith_info)
 # load_information_to_graph(aaron_meredith_graph_entry)
 print(contestant_and_alliance_graph)
+
+# client = pymongo.MongoClient("mongodb+srv://lindseyeis:fairviews@cluster0.pevav.mongodb.net/507FinalProject?retryWrites=true&w=majority")
+# db = client['507FinalProject']
+# collection = db['507FinalProject']
+
+# mongo = collection.insert_many(contestant_and_alliance_graph)
+# print(contestant_and_alliance_graph)

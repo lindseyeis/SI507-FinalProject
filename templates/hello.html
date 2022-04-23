@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Survivor Alliance Map</title>
+</head>
+<body>
+<select name= contestantsAndAlliances method="GET" action="/">
+    {% for contestantOrAlliance in contestantsAndAlliances %}
+    <option value= "{{contestantOrAlliance}}" SELECTED>{{contestantOrAlliance}}</option>"
+    {% endfor %}
+</select>
+
+</body>
+</html>
