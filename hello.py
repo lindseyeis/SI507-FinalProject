@@ -12,4 +12,4 @@ def dropdown():
     contestants_and_alliances = FinalProject.contestant_and_alliance_graph
     return render_template('hello.html', contestantsAndAlliances=contestants_and_alliances.keys())
 
-# Use 'FLASK_APP=hello.py flask run' to run it
+# Use 'FLASK_APP=hello.py FLASK_ENV=development flask run' to run it

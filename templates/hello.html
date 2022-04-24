@@ -3,13 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Survivor Alliance Map</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/hello.css') }}">
 </head>
 <body>
-<select name= contestantsAndAlliances method="GET" action="/">
-    {% for contestantOrAlliance in contestantsAndAlliances %}
-    <option value= "{{contestantOrAlliance}}" SELECTED>{{contestantOrAlliance}}</option>"
-    {% endfor %}
-</select>
+<div class="right-container">
+    <input type="text" onchange=""></input>
+</div>
+<div class="center-container">
+    <div class="project-title">Survivor U.S. Alliance Roadmap</div>
+</div>
+<div class="center-container">
+    <select name= contestantsAndAlliances action="/">
+        <option value="" disabled selected hidden>Choose a Season</option>
+    </select>
+</div>
+<div class="center-container">
+    <select name= contestantsAndAlliances action="/">
+        <option value="" disabled selected hidden>Choose an Alliance</option>
+        {% for contestantOrAlliance in contestantsAndAlliances %}
+        <option value= "{{contestantOrAlliance}}" >{{contestantOrAlliance}}</option>"
+        {% endfor %}
+    </select>
+    <span>OR</span>
+    <select name= contestantsAndAlliances action="/">
+        <option value="" disabled selected hidden>Choose a Contestant</option>
+    </select>
+</div>
+<div class="center-container">
+    <button onclick="">Random</button>
+</div>
+<div>
+    <div class="center-container">Alliance Name: <span class="display-data" id="alliance-name"></span></div>
+    <div class="center-container">Alliance Members: <span class="display-data" id="alliance-members"></span></div>
+    <div class="center-container">Contestants Ranking: <span class="display-data" id="contestants-ranking"></span></div>
+    <div class="center-container">Winning Alliance: <span class="display-data" id="winning-alliance"></span></div>
+</div>
+
 
 </body>
 </html>

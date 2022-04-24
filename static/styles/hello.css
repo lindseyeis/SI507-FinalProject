@@ -1,0 +1,17 @@
+.project-title {
+    font-size: 36px;
+}
+.center-container {
+    display: flex;
+    justify-content: center;
+}
+
+.display-line {
+    font-size: 24px;
+    width: 100%;
+}
+
+.right-container {
+    display: flex;
+    justify-content: right;
+}
