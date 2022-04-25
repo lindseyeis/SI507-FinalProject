@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Survivor Alliance Map</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/website.css') }}">
+    <!-- <script>
+        function handleContestantChange(selection) {
+            //document.getElementById('contestants_page').addEventListener('change', function() {
+            console.log('You selected: ', selection.value);
+            this.form.onContestantChanged();
+        // });
+        }
+    </script> -->
+    <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+            $(function() {
+              $('a#test').on('change', function(e) {
+                e.preventDefault()
+                $.getJSON('/onContestantChanged',
+                    function(data) {
+                        console.log("on contestant changed")
+                  //do nothing
+                });
+                return false;
+              });
+            });
+    </script> -->
+    
+</head>
+<body>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<form class="right-container" action="action_page.php">
+    <input type="text" placeholder="Search..." name="search"></input>
+    <button type="submit"><i class="fa fa-search"></i></button>
+</form>
+
+<div class="center-container">
+    <div class="project-title">Survivor U.S. Alliance Roadmap</div>
+</div>
+<!-- <div class="center-container">
+    <select name= contestantsAndAlliances action="/">
+        <option value="" disabled selected hidden>Choose a Season</option>
+    </select>
+</div> -->
+<div class="center-container">
+    <select name= alliances_page action="/">
+        <option value="" disabled selected hidden>Choose an Alliance</option>
+        {% for alliances in alliances_page %}
+        <option value= "{{alliances}}" >{{alliances}}</option>"
+        {% endfor %}
+    </select>
+    <span>OR</span>
+    <select name= contestants_page id=test action="/">
+        <option value="" disabled selected hidden>Choose a Contestant</option>
+        {% for contestants in contestants_page %}
+        <option value= "{{contestants}}" >{{contestants}}</option>"
+        {% endfor %}
+    </select>
+</div>
+<div class="center-container">
+    <button onclick="">Random</button>
+</div>
+<div>
+    <div class="center-container">Alliance Name: <span class="display-data" id="alliance-name"></span></div>
+    <div class="center-container">Alliance Members: <span class="display-data" id="alliance-members"></span></div>
+    <div class="center-container">Contestants Ranking: <span class="display-data" id="contestants-ranking"></span></div>
+    <div class="center-container">Winning Alliance: <span class="display-data" id="winning-alliance"></span></div>
+</div>
+
+
+</body>
+</html>
+
+<!-- <div class="center-container">
+    <select name= contestantsAndAlliances action="/">
+        <option value="" disabled selected hidden>Choose an Alliance</option>
+        {% for contestantOrAlliance in contestantsAndAlliances %}
+        <option value= "{{contestantOrAlliance}}" >{{contestantOrAlliance}}</option>"
+        {% endfor %}
+    </select> -->
