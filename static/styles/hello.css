@@ -1,17 +1,29 @@
 .project-title {
     font-size: 36px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
 }
 .center-container {
     display: flex;
     justify-content: center;
-}
-
-.display-line {
-    font-size: 24px;
-    width: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 500;
+    line-height: 32px;
 }
 
 .right-container {
     display: flex;
     justify-content: right;
+}
+
+.right-container button {
+    float: right;
+    width: 2%;
+    padding: 10px;
+    background: #2196F3;
+    color: white;
+    font-size: 12px;
+    border: 1px solid grey;
+    border-left: none;
+    cursor: pointer;
 }

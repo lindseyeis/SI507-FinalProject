@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import pymongo
 import dns
+import ssl
+import certifi
 
 BASE_URL = 'https://survivor.fandom.com'
 CONTESTANT_URL = '/wiki/Category:Survivor_(U.S.)_Contestants'
@@ -10,7 +12,8 @@ ALLIANCE_URL = '/wiki/Category:Alliances'
 contestant_and_alliance_graph = {} # {'Evie': {'Seasons': ['Survivor 41', 'Survivor 75'], 'Alliances': ['Yase', 'Cool Allaince', ...], 'Bio': 'I am Evie', ... }
 contestant_to_url = {} # {'Evie': 'http://survivor.wikia.com/Evie' } We have this so the dropdown knows what url to go to
 wiki_html_cache = {} # {'http://survivor.wikia.com/Evie': 'BEAUTIFUL SOUP STUFF'}
-
+contestants_list = []
+alliances_list = []
 # This function returns the beautiful soup for a contestant or alliance
 def get_wiki_page(contestant_or_alliance_url):
     # {'Evie': 'beautiful soup info here'}
@@ -134,6 +137,10 @@ def scrape_all_contestant_and_alliance_pages():
         contestant_or_alliance_soup = get_wiki_page(link)
         graph_entry = scrape_contestant_wiki_page(contestant_or_alliance_soup)
         load_contestant_information_to_graph(graph_entry)
+        print(contestants_list)
+        print(graph_entry)
+        if graph_entry is not None and graph_entry['Name'] is not None:
+            contestants_list.append(graph_entry['Name'])
     print('Scraping alliances')
     for alliance_html in alliances:
         href = alliance_html['href']
@@ -141,15 +148,38 @@ def scrape_all_contestant_and_alliance_pages():
         contestant_or_alliance_soup = get_wiki_page(link)
         graph_entry = scrape_alliance_wiki_page(contestant_or_alliance_soup)
         load_alliance_information_to_graph(graph_entry)
+        if graph_entry is not None and graph_entry['Alliance Name'] is not None:
+            alliances_list.append(graph_entry['Alliance Name'])
+
 
 # aaron_meredith_info = get_wiki_page('https://survivor.fandom.com/wiki/Aaron_Meredith')
 # aaron_meredith_graph_entry = scrape_contestant_wiki_page(aaron_meredith_info)
 # load_information_to_graph(aaron_meredith_graph_entry)
-print(contestant_and_alliance_graph)
 
-# client = pymongo.MongoClient("mongodb+srv://lindseyeis:fairviews@cluster0.pevav.mongodb.net/507FinalProject?retryWrites=true&w=majority")
-# db = client['507FinalProject']
-# collection = db['507FinalProject']
 
-# mongo = collection.insert_many(contestant_and_alliance_graph)
-# print(contestant_and_alliance_graph)
+def mongo_entries():
+    client = pymongo.MongoClient("mongodb+srv://lindseyeis:fairviews@cluster0.pevav.mongodb.net/507FinalProject", tlsCAFile=certifi.where())
+    db = client['507FinalProject']
+    collection = db['507FinalProject']
+
+    for contestant_or_alliance_name in contestant_and_alliance_graph:
+        # "Evie": {"Seasons": ["Survivor 41"], ...}
+        contestant_or_alliance_info = contestant_and_alliance_graph[contestant_or_alliance_name]
+        print(contestant_or_alliance_info)
+        # Determine if this is an alliance or contestant
+        if contestant_or_alliance_name is not None and contestant_or_alliance_name in contestants_list:
+            entry = {"Name": contestant_or_alliance_name}
+            entry.update(contestant_or_alliance_info)
+            found_entry = collection.find_one({"Name": contestant_or_alliance_name})
+            if found_entry is None:
+                mongo = collection.insert_one(entry)
+            print(found_entry)
+        elif contestant_or_alliance_name is not None and contestant_or_alliance_name in alliances_list:
+            entry = {"Name": contestant_or_alliance_name, "Members": contestant_or_alliance_info}
+            found_entry = collection.find_one({"Name": contestant_or_alliance_name})
+            if found_entry is None:
+                mongo = collection.insert_one(entry)
+            print(found_entry)
+        # {"Name": "Evie", "Seasons": ["Survivor 41"], ...}
+
+    print('printed mongo entries')

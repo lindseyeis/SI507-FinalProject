@@ -6,17 +6,21 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/hello.css') }}">
 </head>
 <body>
-<div class="right-container">
-    <input type="text" onchange=""></input>
-</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<form class="right-container" action="action_page.php">
+    <input type="text" placeholder="Search..." name="search"></input>
+    <button type="submit"><i class="fa fa-search"></i></button>
+</form>
+
 <div class="center-container">
     <div class="project-title">Survivor U.S. Alliance Roadmap</div>
 </div>
-<div class="center-container">
+<!-- <div class="center-container">
     <select name= contestantsAndAlliances action="/">
         <option value="" disabled selected hidden>Choose a Season</option>
     </select>
-</div>
+</div> -->
 <div class="center-container">
     <select name= contestantsAndAlliances action="/">
         <option value="" disabled selected hidden>Choose an Alliance</option>
@@ -25,8 +29,11 @@
         {% endfor %}
     </select>
     <span>OR</span>
-    <select name= contestantsAndAlliances action="/">
+    <select name= contestants_page action="/">
         <option value="" disabled selected hidden>Choose a Contestant</option>
+        {% for contestant in contestants_page %}
+        <option value= "{{contestants}}" >{{contestants}}</option>"
+        {% endfor %}
     </select>
 </div>
 <div class="center-container">
