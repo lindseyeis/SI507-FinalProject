@@ -14,6 +14,11 @@ contestant_to_url = {} # {'Evie': 'http://survivor.wikia.com/Evie' } We have thi
 wiki_html_cache = {} # {'http://survivor.wikia.com/Evie': 'BEAUTIFUL SOUP STUFF'}
 contestants_list = []
 alliances_list = []
+
+client = pymongo.MongoClient("mongodb+srv://lindseyeis:fairviews@cluster0.pevav.mongodb.net/507FinalProject", tlsCAFile=certifi.where())
+db = client['507FinalProject']
+collection = db['507FinalProject']
+
 # This function returns the beautiful soup for a contestant or alliance
 def get_wiki_page(contestant_or_alliance_url):
     # {'Evie': 'beautiful soup info here'}
@@ -48,7 +53,7 @@ def scrape_contestant_wiki_page(wiki_page_contents):
         alliances = all_divs.find_all("a", href=True, recursive=True)
         if alliances is not None:
             for alliance in alliances:
-                alliance_list.append(alliance['href'])
+                alliance_list.append(alliance['title'])
 
     all_seasons = wiki_page_contents.find("nav", {"data-item-name": "season"}, recursive=True)
     all_seasons_and_places = {}
@@ -141,6 +146,7 @@ def scrape_all_contestant_and_alliance_pages():
         print(graph_entry)
         if graph_entry is not None and graph_entry['Name'] is not None:
             contestants_list.append(graph_entry['Name'])
+
     print('Scraping alliances')
     for alliance_html in alliances:
         href = alliance_html['href']
@@ -148,20 +154,26 @@ def scrape_all_contestant_and_alliance_pages():
         contestant_or_alliance_soup = get_wiki_page(link)
         graph_entry = scrape_alliance_wiki_page(contestant_or_alliance_soup)
         load_alliance_information_to_graph(graph_entry)
+        print('this is the graph entry')
+        print(graph_entry)
         if graph_entry is not None and graph_entry['Alliance Name'] is not None:
             alliances_list.append(graph_entry['Alliance Name'])
+    print(contestant_and_alliance_graph)
 
-
+# Gets a contestant or alliance from either the cache or the database.
+# Will always try to retrieve from the cache before adding to the database.
+def get_contestant_or_alliance(contestant_or_alliance_name):
+    # We have already found this contestant or alliance - retrieve it from the graph
+    if contestant_or_alliance_name in contestant_and_alliance_graph:
+        return contestant_and_alliance_graph[contestant_or_alliance_name]
+    else:
+        found_entry = collection.find_one({"Name": contestant_or_alliance_name})
+        return found_entry
 # aaron_meredith_info = get_wiki_page('https://survivor.fandom.com/wiki/Aaron_Meredith')
 # aaron_meredith_graph_entry = scrape_contestant_wiki_page(aaron_meredith_info)
 # load_information_to_graph(aaron_meredith_graph_entry)
 
-
 def mongo_entries():
-    client = pymongo.MongoClient("mongodb+srv://lindseyeis:fairviews@cluster0.pevav.mongodb.net/507FinalProject", tlsCAFile=certifi.where())
-    db = client['507FinalProject']
-    collection = db['507FinalProject']
-
     for contestant_or_alliance_name in contestant_and_alliance_graph:
         # "Evie": {"Seasons": ["Survivor 41"], ...}
         contestant_or_alliance_info = contestant_and_alliance_graph[contestant_or_alliance_name]
@@ -183,3 +195,48 @@ def mongo_entries():
         # {"Name": "Evie", "Seasons": ["Survivor 41"], ...}
 
     print('printed mongo entries')
+
+# Breadth-first search all contestants and alliances
+def get_path_to_victory(contestant_or_alliance_entry):
+    print('Calculating shortest path. This may take several minutes.')
+    print(contestant_and_alliance_graph)
+    queue = []
+    visited_nodes = []
+
+    queue.append([contestant_or_alliance_entry])
+
+    while len(queue) > 0:
+        pathToInspect = queue.pop(0)
+        nameToInspect = pathToInspect[-1]
+        print('Inspecting node ' + nameToInspect)
+        if nameToInspect in contestants_list or nameToInspect in alliances_list:
+            nodeToInspect = contestant_and_alliance_graph[nameToInspect]
+            print(nodeToInspect)
+        else:
+            print('Error: Failed to find contestant or alliance. Continuing...')
+            continue
+        # If this is a contestant, check if they're the winner
+        if nameToInspect in contestants_list:
+            contestant_seasons = nodeToInspect['Seasons']
+            isWinner = False
+            for season in contestant_seasons:
+                # {Island of the Idols: 11/20}
+                if contestant_seasons[season] == "Winner":
+                    isWinner = True
+            if isWinner:
+                print('Found the winner ' + nameToInspect)
+                print(pathToInspect)
+                return pathToInspect
+        if nodeToInspect not in visited_nodes:
+            if nameToInspect in contestants_list:
+                neighborNodes = nodeToInspect['Alliances']
+            elif nameToInspect in alliances_list:
+                neighborNodes = nodeToInspect
+            print(neighborNodes)
+            for neighborNode in neighborNodes:
+                newPath = pathToInspect.copy()
+                newPath.append(neighborNode)
+                queue.append(newPath)
+        visited_nodes.append(nodeToInspect)
+    print("Sorry, couldn't find a connection")
+    return
