@@ -7,7 +7,8 @@ app.debug = True
 @app.route('/')
 def dropdown():
     print("starting to generate dropdown")
-    FinalProject.scrape_all_contestant_and_alliance_pages()
+    #FinalProject.scrape_all_contestant_and_alliance_pages()
+    FinalProject.get_all_contestants_and_alliances_mongo()
     print("done scraping")
     contestants_and_alliances = FinalProject.contestant_and_alliance_graph
     contestants = FinalProject.contestants_list

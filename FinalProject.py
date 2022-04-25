@@ -173,6 +173,22 @@ def get_contestant_or_alliance(contestant_or_alliance_name):
 # aaron_meredith_graph_entry = scrape_contestant_wiki_page(aaron_meredith_info)
 # load_information_to_graph(aaron_meredith_graph_entry)
 
+def get_all_contestants_and_alliances_mongo():
+    entries = collection.find({})
+    for entry in entries:
+        # This is for alliances
+        if "Members" in entry:
+            contestant_and_alliance_graph[entry["Name"]] = entry["Members"]
+            alliances_list.append(entry["Name"])
+        # This is for contestants
+        elif "Seasons" in entry:
+            graph_entry = {}
+            for key in entry:
+                if key != "Name":
+                    graph_entry.update({key: entry[key]})
+            contestant_and_alliance_graph[entry["Name"]] = graph_entry
+            contestants_list.append(entry["Name"])
+
 def mongo_entries():
     for contestant_or_alliance_name in contestant_and_alliance_graph:
         # "Evie": {"Seasons": ["Survivor 41"], ...}
