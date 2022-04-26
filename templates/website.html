@@ -27,7 +27,7 @@
             });
     </script> -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script>
+    <script type=text/javascript>
         function handleOnContestantChange() {
             var allianceElement = document.getElementById("alliance-select");
             var contestantElement = document.getElementById("contestant-select");
@@ -48,31 +48,51 @@
             contestantElement.value = "";
         }
 
+        // function handleOnRandom(contestants_page, alliances_page){
+        //     console.log("Handling on random");
+        //     console.log(contestants_page)
+        //     var randomNumber = Math.random(0, alliances_page.length + contestants_page.length)
+        //     var randomContestantOrAlliance;
+
+        //     if(randomNumber < alliances_page.length){
+        //         randomContestantOrAlliance = alliances_page[randomNumber];
+        //     }
+        //     else{
+        //         randomContestantOrAlliance = contestants_page[randomNumber - alliances_page.length];
+        //     }
+        //     getSelectChange(randomContestantOrAlliance);
+        //     contestantElement.value = "";
+        //     allianceElement.value = "";
+        // }
+
         function getSelectChange(selection) {
             $.post("/handleContestantChange", {"contestant": selection}, function(data) {
                 var elementToSet = document.getElementById("alliance-name");
                 elementToSet.innerHTML = data;
             });
+        }
 
+        function getRandomContestant() {
+            $.get("/getRandomContestant", function(data) {
+                var elementToSet = document.getElementById("alliance-name");
+                elementToSet.innerHTML = data;
+            });
+        }
+
+        function getRandomAlliance() {
+            $.get("/getRandomAlliance", function(data) {
+                var elementToSet = document.getElementById("alliance-name");
+                elementToSet.innerHTML = data;
+            });
         }
     </script>
 </head>
 <body>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<form class="right-container" action="action_page.php">
-    <input type="text" placeholder="Search..." name="search"></input>
-    <button type="submit"><i class="fa fa-search"></i></button>
-</form>
-
 <div class="center-container">
     <div class="project-title">Survivor U.S. Alliance Roadmap</div>
 </div>
-<!-- <div class="center-container">
-    <select name= contestantsAndAlliances action="/">
-        <option value="" disabled selected hidden>Choose a Season</option>
-    </select>
-</div> -->
+
 <div class="center-container">
     <select name= alliances_page id="alliance-select" onchange="handleOnAllianceChange()" action="/">
         <option value="" disabled selected hidden>Choose an Alliance</option>
@@ -89,23 +109,13 @@
     </select>
 </div>
 <div class="center-container">
-    <button onclick="">Random</button>
+    <button onclick="getRandomContestant()">Random Contestant</button>
+</div>
+<div class="center-container">
+    <button onclick="getRandomAlliance()">Random Alliance</button>
 </div>
 <div>
     <div class="center-container">Contestant or Alliance Info: <span class="display-data" id="alliance-name">{{ myData }}</span></div>
-    <!-- <div class="center-container">Alliance Members: <span class="display-data" id="alliance-members"></span></div>
-    <div class="center-container">Contestants Ranking: <span class="display-data" id="contestants-ranking"></span></div>
-    <div class="center-container">Winning Alliance: <span class="display-data" id="winning-alliance"></span></div> -->
 </div>
-
-
 </body>
 </html>
-
-<!-- <div class="center-container">
-    <select name= contestantsAndAlliances action="/">
-        <option value="" disabled selected hidden>Choose an Alliance</option>
-        {% for contestantOrAlliance in contestantsAndAlliances %}
-        <option value= "{{contestantOrAlliance}}" >{{contestantOrAlliance}}</option>"
-        {% endfor %}
-    </select> -->

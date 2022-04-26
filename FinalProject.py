@@ -50,7 +50,6 @@ def mongo_entries():
                 mongo = collection.insert_one(entry)
             print(found_entry)
 
-    print('printed mongo entries')
 
 # Breadth-first search all contestants and alliances
 def get_path_to_victory(contestant_or_alliance_entry):
