@@ -26,7 +26,36 @@
               });
             });
     </script> -->
-    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        function handleOnContestantChange() {
+            var allianceElement = document.getElementById("alliance-select");
+            var contestantElement = document.getElementById("contestant-select");
+            var contestant = contestantElement.value;
+            if (contestant !== "") {
+                getSelectChange(contestant);
+            }
+            allianceElement.value = "";
+        }
+
+        function handleOnAllianceChange() {
+            var allianceElement = document.getElementById("alliance-select");
+            var contestantElement = document.getElementById("contestant-select");
+            var alliance = allianceElement.value;
+            if (alliance !== "") {
+                getSelectChange(alliance);
+            }
+            contestantElement.value = "";
+        }
+
+        function getSelectChange(selection) {
+            $.post("/handleContestantChange", {"contestant": selection}, function(data) {
+                var elementToSet = document.getElementById("alliance-name");
+                elementToSet.innerHTML = data;
+            });
+
+        }
+    </script>
 </head>
 <body>
 
@@ -45,14 +74,14 @@
     </select>
 </div> -->
 <div class="center-container">
-    <select name= alliances_page action="/">
+    <select name= alliances_page id="alliance-select" onchange="handleOnAllianceChange()" action="/">
         <option value="" disabled selected hidden>Choose an Alliance</option>
         {% for alliances in alliances_page %}
         <option value= "{{alliances}}" >{{alliances}}</option>"
         {% endfor %}
     </select>
     <span>OR</span>
-    <select name= contestants_page id=test action="/">
+    <select name= contestants_page id="contestant-select" onchange="handleOnContestantChange()" action="/">
         <option value="" disabled selected hidden>Choose a Contestant</option>
         {% for contestants in contestants_page %}
         <option value= "{{contestants}}" >{{contestants}}</option>"
@@ -63,10 +92,10 @@
     <button onclick="">Random</button>
 </div>
 <div>
-    <div class="center-container">Alliance Name: <span class="display-data" id="alliance-name"></span></div>
-    <div class="center-container">Alliance Members: <span class="display-data" id="alliance-members"></span></div>
+    <div class="center-container">Contestant or Alliance Info: <span class="display-data" id="alliance-name">{{ myData }}</span></div>
+    <!-- <div class="center-container">Alliance Members: <span class="display-data" id="alliance-members"></span></div>
     <div class="center-container">Contestants Ranking: <span class="display-data" id="contestants-ranking"></span></div>
-    <div class="center-container">Winning Alliance: <span class="display-data" id="winning-alliance"></span></div>
+    <div class="center-container">Winning Alliance: <span class="display-data" id="winning-alliance"></span></div> -->
 </div>
 
 

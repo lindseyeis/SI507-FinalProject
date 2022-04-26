@@ -92,5 +92,4 @@ def get_path_to_victory(contestant_or_alliance_entry):
                 newPath.append(neighborNode)
                 queue.append(newPath)
         visited_nodes.append(nodeToInspect)
-    print("Sorry, couldn't find a connection")
-    return
+    return ["This contestant has no path to victory :("]
