@@ -11,6 +11,8 @@ Open website.py and use the following command to begin running flask: FLASK_APP=
 
 You may need to add Flask to your PATH variable for this command to run. You should be prompted in the VSCode terminal if this is the case. The command to add Flask to your PATH is: PATH=$PATH:(directory name here). For example, mine was PATH=$PATH:/Users/lindseyeisenshtadt/Library/Python/3.10/bin
 
+In the command line in VSCode, after opening website.py, the user will run the command ‘FLASK_APP=website.py FLASK_ENV=development flask run’ to prompt flask to open the website and click on the host server link to open it. The host server should be something like: http://127.0.0.1:5000
+
 You can switch between getting data from the web crawler/scraper and getting data from the MongoDB database. 
 To use scraping, in website.py, uncomment line 14 and comment line 15, or vice versa to use the MongoDB data. 
 By default, MongoDB is used, so it will take about 30 seconds to load the website. 
@@ -23,5 +25,3 @@ When the user opens the website, they will see a four ways to interact with the 
   3. The user can press the ‘Random Contestant’ button which will randomly select a contestant and display the same information as listed above.
   4. The user can press the ‘Random Alliance' button which will randomly select an alliance and display the same information as listed above.
 If a user selects a contestant then at the bottom of the page, the graph information will be displayed so users can see the connection between the selected player and the winner. This will be displayed at ‘Path to Victory”
-
-In the command line in VSCode, after opening website.py, the user will run the command ‘FLASK_APP=website.py FLASK_ENV=development flask run’ to prompt flask to open the website and click on the host server link to open it. The host server should be something like: http://127.0.0.1:5000
