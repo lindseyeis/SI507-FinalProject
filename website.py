@@ -10,7 +10,7 @@ app.debug = True
 
 @app.route('/')
 def dropdown():
-    # COMMENT 14 AND UNCOMMENT 13 IF YOU WANT TO TEST THE WEB CRAWLER/SCRAPER
+    # COMMENT 15 AND UNCOMMENT 14 IF YOU WANT TO TEST THE WEB CRAWLER/SCRAPER
     # scraper.scrape_all_contestant_and_alliance_pages()
     FinalProject.get_all_contestants_and_alliances_mongo()
     contestants_and_alliances = FinalProject.contestant_and_alliance_graph

@@ -4,28 +4,6 @@
     <meta charset="UTF-8">
     <title>Survivor Alliance Map</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/website.css') }}">
-    <!-- <script>
-        function handleContestantChange(selection) {
-            //document.getElementById('contestants_page').addEventListener('change', function() {
-            console.log('You selected: ', selection.value);
-            this.form.onContestantChanged();
-        // });
-        }
-    </script> -->
-    <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type=text/javascript>
-            $(function() {
-              $('a#test').on('change', function(e) {
-                e.preventDefault()
-                $.getJSON('/onContestantChanged',
-                    function(data) {
-                        console.log("on contestant changed")
-                  //do nothing
-                });
-                return false;
-              });
-            });
-    </script> -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script type=text/javascript>
         function handleOnContestantChange() {
@@ -47,23 +25,6 @@
             }
             contestantElement.value = "";
         }
-
-        // function handleOnRandom(contestants_page, alliances_page){
-        //     console.log("Handling on random");
-        //     console.log(contestants_page)
-        //     var randomNumber = Math.random(0, alliances_page.length + contestants_page.length)
-        //     var randomContestantOrAlliance;
-
-        //     if(randomNumber < alliances_page.length){
-        //         randomContestantOrAlliance = alliances_page[randomNumber];
-        //     }
-        //     else{
-        //         randomContestantOrAlliance = contestants_page[randomNumber - alliances_page.length];
-        //     }
-        //     getSelectChange(randomContestantOrAlliance);
-        //     contestantElement.value = "";
-        //     allianceElement.value = "";
-        // }
 
         function getSelectChange(selection) {
             $.post("/handleContestantChange", {"contestant": selection}, function(data) {
@@ -115,7 +76,7 @@
     <button onclick="getRandomAlliance()">Random Alliance</button>
 </div>
 <div>
-    <div class="center-container">Contestant or Alliance Info: <span class="display-data" id="alliance-name">{{ myData }}</span></div>
+    <div class="center-container"><span class="display-data" id="alliance-name">{{ myData }}</span></div>
 </div>
 </body>
 </html>

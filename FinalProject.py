@@ -1,13 +1,13 @@
 import pymongo
 import certifi
 
-contestant_and_alliance_graph = {} # {'Evie': {'Seasons': ['Survivor 41', 'Survivor 75'], 'Alliances': ['Yase', 'Cool Allaince', ...], 'Bio': 'I am Evie', ... }
-contestant_to_url = {} # {'Evie': 'http://survivor.wikia.com/Evie' } We have this so the dropdown knows what url to go to
-wiki_html_cache = {} # {'http://survivor.wikia.com/Evie': 'BEAUTIFUL SOUP STUFF'}
+contestant_and_alliance_graph = {}
+contestant_to_url = {}
+wiki_html_cache = {}
 contestants_list = []
 alliances_list = []
 
-client = pymongo.MongoClient("mongodb+srv://lindseyeis:fairviews@cluster0.pevav.mongodb.net/507FinalProject", tlsCAFile=certifi.where())
+client = pymongo.MongoClient("INSERT CONNECTION STRING HERE", tlsCAFile=certifi.where())
 db = client['507FinalProject']
 collection = db['507FinalProject']
 

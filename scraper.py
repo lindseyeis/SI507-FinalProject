@@ -8,8 +8,6 @@ ALLIANCE_URL = '/wiki/Category:Alliances'
 
 # This function returns the beautiful soup for a contestant or alliance
 def get_wiki_page(contestant_or_alliance_url):
-    # {'Evie': 'beautiful soup info here'}
-    # {'Yase Alliance': 'beautiful soup here'}
     if contestant_or_alliance_url not in FinalProject.wiki_html_cache:
         contestant_link = requests.get(contestant_or_alliance_url)
         contestant_soup = BeautifulSoup(contestant_link.content, 'html.parser')
