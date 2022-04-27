@@ -3,7 +3,7 @@ Survivor Alliance Browser for UMSI SI507
 
 The program runs off of FinalProject.py, scraper.py, website.py, website.html and website.css. (website.html is located in the templates folder and website.css is located in the static/styles folder)
 
-Do a pip install of the following: BeautifulSoup4, requests, pymongo, certifi, flask
+Make sure you are on a version of Python3 and do a pip3 install of the following: BeautifulSoup4, requests, pymongo, certifi, flask, dnspython
 
 IN ORDER TO CONNECT TO MONGODB AND MAKE THE CODE WORK, go to FinalProject.py and insert the connection string, that I provided in the PDF submitted on Canvas, on line 10.
 
